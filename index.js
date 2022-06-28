@@ -1,7 +1,7 @@
 // const inquirer = require('inquirer');
 import inquirer from 'inquirer'
 
-promptUser = () => {
+const promptUser = () => {
   return inquirer.prompt([
     {
       type: 'input',
@@ -11,4 +11,5 @@ promptUser = () => {
   ])
 }
 
-promptUser();
+promptUser()
+.then(pokemon => console.log(pokemon.name))
