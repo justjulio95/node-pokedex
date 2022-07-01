@@ -1,7 +1,7 @@
 import inquirer from 'inquirer'
 import axios from 'axios'
+import ora from 'ora'
 import chalk from 'chalk'
-import say from 'say'
 const log = console.log;
 
 const baseURL = `https://pokeapi.co/api/v2/`
@@ -18,6 +18,7 @@ const promptUser = () => {
 }
 
 function getBasicInfo(name) {
+
   axios.get(baseURL + `pokemon/${name}`).then(resp => {
     const data = resp.data;
     let typesName = []
@@ -34,12 +35,9 @@ function getBasicInfo(name) {
 
     const speciesURL = data.species.url;
     getFlavorText(speciesURL)
-
-    log(chalk.yellow(
-      `${name[0].toUpperCase() + name.substring(1)}`) + ", the " + 
-      chalk.underline.blueBright(`${typesName}`) + " type Pokémon.\n")
     
-    say.speak(`${name[0].toUpperCase() + name.substring(1)}, the ${typesName} type Pokémon.`)
+    log(chalk.yellow(`${name[0].toUpperCase() + name.substring(1)}`) + ", the " + 
+      chalk.underline.blueBright(`${typesName}`) + " type Pokémon.\n")
 
     const stats = data.stats
     for(let i = 0; i < stats.length; i++) {
@@ -95,22 +93,27 @@ function getEvoChain(url) {
 
     const evoChain = resp.data.chain;
 
-    evo1 = evoChain.species.name;
+    evo1 = evoChain.species.name[0].toUpperCase() + evoChain.species.name.substring(1);
 
     // check to see if there is ONLY a second evolution in the chain. 
     if (evoChain.evolves_to[0] !== undefined && evoChain.evolves_to[0].evolves_to[0] === undefined) {
-      evo2 = evoChain.evolves_to[0].species.name;
+      evo2 = evoChain.evolves_to[0].species.name[0].toUpperCase() + evoChain.evolves_to[0].species.name.substring(1);
       console.log(`${evo1} --> ${evo2}`)
     } 
     // Check to see if there is a third evolution in the chain. 
     else if (evoChain.evolves_to[0] !== undefined && evoChain.evolves_to[0].evolves_to[0] !== undefined) {
 
-      evo2 = evoChain.evolves_to[0].species.name;
-      evo3 = evoChain.evolves_to[0].evolves_to[0].species.name;
+      evo2 = evoChain.evolves_to[0].species.name[0].toUpperCase() + evoChain.evolves_to[0].species.name.substring(1);
+      evo3 = evoChain.evolves_to[0].evolves_to[0].species.name[0].toUpperCase() + evoChain.evolves_to[0].evolves_to[0].species.name.substring(1);
 
       console.log(`${evo1} --> ${evo2} --> ${evo3}`)
     }
-    console.log(`${evo1} does not evolve.`)
+    // need to find a way to get special cases going...
+
+    // check if there are no evolutions at all 
+    else if (evoChain.evolves_to[0] === undefined) {
+      console.log(`${evo1} does not evolve.`)
+    }
   })
   .catch(function (error) {
     if (error.response) {
